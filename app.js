@@ -34,6 +34,7 @@ var Blog = mongoose.model("Blog", blogSchema);
 //ROUTES
 //===========================================================================
 
+//INDEX route
 app.get("/", function(req, res) {
     res.redirect("/blogs");
 });
@@ -48,8 +49,50 @@ app.get("/blogs", function(req, res) {
     });
 });
 
+//NEW route
+app.get("/blogs/new", function(req, res) {
+    res.render("new");
+});
 
 
+//CREATE route
+app.post("/blogs", function(req, res) {
+
+    Blog.create(req.body.blog, function(err, newlyCreated) {
+        if(err) {
+            console.log(err)
+        } else {
+            res.redirect("/blogs");
+        }
+    });
+});
+
+//SHOW route
+app.get("/blogs/:id", function(req, res) {
+    Blog.findById(req.params.id, function(err, foundPost) {
+        if(err) {
+            console.log(err);
+        } else {
+            res.render("show", {blog: foundPost});
+        }
+    });
+});
+
+//EDIT route
+app.get("/blogs/:id/edit", function(req, res) {
+    Blog.findById(req.params.id, function(err, foundPost) {
+        if(err) {
+            console.log(err);
+        } else {
+            res.render("edit", {blog: foundPost});
+        }
+    });
+});
+
+//UPDATE route
+app.post("/blogs/:id", function(req, res) {
+    res.send("Update route");
+});
 
 app.listen(process.env.PORT, process.env.IP, function() {
     console.log("The server has started..");
