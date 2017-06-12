@@ -2,10 +2,12 @@ var express = require("express");
 var app = express();
 var bodyParser = require("body-parser");
 var mongoose = require("mongoose");
+var methodOverride = require("method-override");
 
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.static("public"));
+app.use(methodOverride("_method"));
 
 mongoose.connect("mongodb://localhost/blog_app");
 
@@ -90,8 +92,25 @@ app.get("/blogs/:id/edit", function(req, res) {
 });
 
 //UPDATE route
-app.post("/blogs/:id", function(req, res) {
-    res.send("Update route");
+app.put("/blogs/:id", function(req, res) {
+    Blog.findByIdAndUpdate(req.params.id, req.body.blog, function(err, updatedPost) {
+        if(err) {
+            console.log(err);
+        } else {
+            res.redirect("/blogs/" + req.params.id);
+        }
+    });
+});
+
+//DESTROY route
+app.delete("/blogs/:id", function(req, res) {
+    Blog.findByIdAndRemove(req.params.id, function(err) {
+        if(err) {
+            console.log(err);
+        } else {
+            res.redirect("/blogs");
+        }
+    });
 });
 
 app.listen(process.env.PORT, process.env.IP, function() {
