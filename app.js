@@ -3,11 +3,13 @@ var app = express();
 var bodyParser = require("body-parser");
 var mongoose = require("mongoose");
 var methodOverride = require("method-override");
+var expressSanitizer = require("express-sanitizer");
 
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.static("public"));
 app.use(methodOverride("_method"));
+app.use(expressSanitizer());
 
 mongoose.connect("mongodb://localhost/blog_app");
 
@@ -59,6 +61,8 @@ app.get("/blogs/new", function(req, res) {
 
 //CREATE route
 app.post("/blogs", function(req, res) {
+    //Use express-sanitize to stop users from entering script tags when they create a new post.
+    req.body.blog.body = req.sanitize(req.body.blog.body);
 
     Blog.create(req.body.blog, function(err, newlyCreated) {
         if(err) {
@@ -93,6 +97,8 @@ app.get("/blogs/:id/edit", function(req, res) {
 
 //UPDATE route
 app.put("/blogs/:id", function(req, res) {
+    //Use express-sanitize to stop users from entering script tags when they edit a post.
+    req.body.blog.body = req.sanitize(req.body.blog.body);
     Blog.findByIdAndUpdate(req.params.id, req.body.blog, function(err, updatedPost) {
         if(err) {
             console.log(err);
